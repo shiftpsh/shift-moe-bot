@@ -116,9 +116,9 @@ function sendReplyTweet(client, original_tweet, text) {
     }
 }
 
-function fcc(text, code, currency, value, client, tweet) {
-    if (code !== 'KRW') {
-        request(`http://free.currencyconverterapi.com/api/v3/convert?q=${code}_KRW&compact=y`, (error, response, body) => {
+function fcc(args) {
+    if (args.code !== 'KRW') {
+        request(`http://free.currencyconverterapi.com/api/v3/convert?q=${args.code}_KRW&compact=y`, (error, response, body) => {
             if (body) {
                 console.log(body);
                 const exchangeData = JSON.parse(body);
@@ -127,47 +127,47 @@ function fcc(text, code, currency, value, client, tweet) {
                     const data = exchangeData[Object.keys(exchangeData)[0]];
                     const rate = data.val;
 
-                    if (!currency.psuedo) {
+                    if (!args.currency.psuedo) {
                         let message = config.output_message.real;
-                        message = message.replace('$1', currency.prefix);
-                        message = message.replace('$2', (value * 1).toLocaleString());
-                        message = message.replace('$3', currency.screen);
-                        message = message.replace('$4', (Math.round(value * rate)).toLocaleString());
+                        message = message.replace('$1', args.urrency.prefix);
+                        message = message.replace('$2', (args.value * 1).toLocaleString());
+                        message = message.replace('$3', args.currency.screen);
+                        message = message.replace('$4', (Math.round(args.value * rate)).toLocaleString());
 
-                        sendReplyTweet(client, tweet, message);
+                        sendReplyTweet(args.client, args.tweet, message);
                     } else {
                         let message = config.output_message.psuedo;
-                        console.log(currency.calculate.replace(/value/gi, value));
+                        console.log(args.currency.calculate.replace(/value/gi, args.value));
 
-                        message = message.replace('$1', currency.prefix);
-                        message = message.replace('$2', (value * 1).toLocaleString());
-                        message = message.replace('$3', currency.screen);
-                        message = message.replace('$4', (Math.round(eval(currency.calculate.replace(/value/gi, value)) * rate)).toLocaleString());
+                        message = message.replace('$1', args.currency.prefix);
+                        message = message.replace('$2', (args.value * 1).toLocaleString());
+                        message = message.replace('$3', args.currency.screen);
+                        message = message.replace('$4', (Math.round(eval(args.currency.calculate.replace(/value/gi, args.value)) * rate)).toLocaleString());
 
-                        sendReplyTweet(client, tweet, message);
+                        sendReplyTweet(args.client, args.tweet, message);
                     }
                 } else {
-                    sendReplyTweet(client, tweet, '현재 환율 시스템에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
+                    sendReplyTweet(args.client, args.tweet, '현재 환율 시스템에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
                 }
             } else {
-                sendReplyTweet(client, tweet, '현재 환율 시스템에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
+                sendReplyTweet(args.client, args.tweet, '현재 환율 시스템에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
             }
         });
-    } else if (currency.psuedo) {
+    } else if (args.currency.psuedo) {
         let message = config.output_message.krw;
-        console.log(currency.calculate.replace(/value/gi, value));
+        console.log(args.currency.calculate.replace(/value/gi, args.value));
 
-        message = message.replace('$1', currency.prefix);
-        message = message.replace('$2', (value * 1).toLocaleString());
-        message = message.replace('$3', currency.screen);
-        message = message.replace('$4', (Math.round(eval(currency.calculate.replace(/value/gi, value)))).toLocaleString());
+        message = message.replace('$1', args.currency.prefix);
+        message = message.replace('$2', (args.value * 1).toLocaleString());
+        message = message.replace('$3', args.currency.screen);
+        message = message.replace('$4', (Math.round(eval(args.currency.calculate.replace(/value/gi, args.value)))).toLocaleString());
 
-        sendReplyTweet(client, tweet, message);
+        sendReplyTweet(args.client, args.tweet, message);
     }
 }
 
-function korbit(text, code, currency, value, client, tweet) {
-    request(`https://api.korbit.co.kr/v1/ticker?currency_pair=${code.toLowerCase()}_krw`, (error, response, body) => {
+function korbit(args) {
+    request(`https://api.korbit.co.kr/v1/ticker?currency_pair=${args.code.toLowerCase()}_krw`, (error, response, body) => {
         if (body) {
             console.log(body);
             const exchangeData = JSON.parse(body);
@@ -176,37 +176,37 @@ function korbit(text, code, currency, value, client, tweet) {
                 const rate = exchangeData.last;
 
                 let message = config.output_message.real;
-                message = message.replace('$1', currency.prefix);
-                message = message.replace('$2', (value * 1).toLocaleString(undefined, { maximumFractionDigits: 16 }));
-                message = message.replace('$3', currency.screen);
-                message = message.replace('$4', (Math.round(value * rate)).toLocaleString());
+                message = message.replace('$1', args.currency.prefix);
+                message = message.replace('$2', (args.value * 1).toLocaleString(undefined, { maximumFractionDigits: 16 }));
+                message = message.replace('$3', args.currency.screen);
+                message = message.replace('$4', (Math.round(args.value * rate)).toLocaleString());
 
-                sendReplyTweet(client, tweet, message);
+                sendReplyTweet(args.client, args.tweet, message);
             } else {
-                sendReplyTweet(client, tweet, '현재 환율 시스템에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
+                sendReplyTweet(args.client, args.tweet, '현재 환율 시스템에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
             }
         } else {
-            sendReplyTweet(client, tweet, '현재 환율 시스템에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
+            sendReplyTweet(args.client, args.tweet, '현재 환율 시스템에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
         }
     });
 }
 
-function fcc_material(text, code, currency, value, client, tweet) {
+function fcc_material(args) {
     const tr_ounce = 31.1034768;
     let units = 'g';
     let unit_multiplier = 1;
 
-    if (containsAny(text, ['mg', '밀리그람', '밀리그램'])) {
+    if (containsAny(args.text, ['mg', '밀리그람', '밀리그램'])) {
         units = 'mg';
         unit_multiplier = 0.0001;
     }
-    if (containsAny(text, ['kg', '킬로', '킬로그람', '킬로그램'])) {
+    if (containsAny(args.text, ['kg', '킬로', '킬로그람', '킬로그램'])) {
         units = 'kg';
         unit_multiplier = 1000;
     }
 
-    if (code !== 'KRW') {
-        request(`http://free.currencyconverterapi.com/api/v3/convert?q=${code}_KRW&compact=y`, (error, response, body) => {
+    if (args.code !== 'KRW') {
+        request(`http://free.currencyconverterapi.com/api/v3/convert?q=${args.code}_KRW&compact=y`, (error, response, body) => {
             if (body) {
                 console.log(body);
                 const exchangeData = JSON.parse(body);
@@ -216,30 +216,30 @@ function fcc_material(text, code, currency, value, client, tweet) {
                     const rate = data.val;
 
                     let message = config.output_message.material;
-                    message = message.replace('$1', currency.prefix);
-                    message = message.replace('$2', currency.screen);
-                    message = message.replace('$3', (value * 1).toLocaleString());
+                    message = message.replace('$1', args.currency.prefix);
+                    message = message.replace('$2', args.currency.screen);
+                    message = message.replace('$3', (args.value * 1).toLocaleString());
                     message = message.replace('$4', `${units}는`);
-                    message = message.replace('$5', (Math.round((value * rate * unit_multiplier) / tr_ounce)).toLocaleString());
+                    message = message.replace('$5', (Math.round((args.value * rate * unit_multiplier) / tr_ounce)).toLocaleString());
 
-                    sendReplyTweet(client, tweet, message);
+                    sendReplyTweet(args.client, args.tweet, message);
                 } else {
-                    sendReplyTweet(client, tweet, '현재 환율 시스템에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
+                    sendReplyTweet(args.client, args.tweet, '현재 환율 시스템에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
                 }
             } else {
-                sendReplyTweet(client, tweet, '현재 환율 시스템에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
+                sendReplyTweet(args.client, args.tweet, '현재 환율 시스템에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
             }
         });
-    } else if (currency.psuedo) {
+    } else if (args.currency.psuedo) {
         let message = config.output_message.krw;
-        console.log(currency.calculate.replace(/value/gi, value));
+        console.log(args.currency.calculate.replace(/value/gi, args.value));
 
-        message = message.replace('$1', currency.prefix);
-        message = message.replace('$2', (value * 1).toLocaleString());
-        message = message.replace('$3', currency.screen);
-        message = message.replace('$4', (Math.round(eval(currency.calculate.replace(/value/gi, value)))).toLocaleString());
+        message = message.replace('$1', args.currency.prefix);
+        message = message.replace('$2', (args.value * 1).toLocaleString());
+        message = message.replace('$3', args.currency.screen);
+        message = message.replace('$4', (Math.round(eval(args.currency.calculate.replace(/value/gi, args.value)))).toLocaleString());
 
-        sendReplyTweet(client, tweet, message);
+        sendReplyTweet(args.client, args.tweet, message);
     }
 }
 
