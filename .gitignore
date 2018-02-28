@@ -61,8 +61,5 @@ typings/
 # dotenv environment variables file
 .env
 
-# shiftbot copyrighted files
-shiftbot_copyrighted/
-
 # Generated files
 temp.png
