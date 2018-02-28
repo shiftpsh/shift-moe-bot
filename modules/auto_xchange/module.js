@@ -3,7 +3,7 @@ const request = require('request');
 
 exports.title = 'auto_xchange';
 
-const botScreenName = 'bot_screen_name';
+const botScreenName = process.env.BOT_SCREEN_NAME;
 
 const defaultConfig = {
     output_message: {
