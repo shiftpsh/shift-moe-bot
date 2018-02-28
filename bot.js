@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const Twitter = require('twitter');
 const gm = require('gm').subClass({ imageMagick: true });
 const fs = require('fs');
@@ -5,13 +7,13 @@ const request = require('request');
 const moment = require('moment-timezone');
 const path = require('path');
 
-const botScreenName = 'bot_screen_name';
+const botScreenName = process.env.BOT_SCREEN_NAME;
 
 const client = new Twitter({
-    consumer_key: 'consumer_key',
-    consumer_secret: 'consumer_secret',
-    access_token_key: 'access_token_key',
-    access_token_secret: 'access_token_secret'
+    consumer_key: process.env.CONSUMER_KEY,
+    consumer_secret: process.env.CONSUMER_SECRET,
+    access_token_key: process.env.ACCESS_TOKEN_KEY,
+    access_token_secret: process.env.ACCESS_TOKEN_SECRET
 });
 
 const modules = [];
