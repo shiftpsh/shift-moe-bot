@@ -147,10 +147,10 @@ function fcc(args) {
                         sendReplyTweet(args.client, args.tweet, message);
                     }
                 } else {
-                    sendReplyTweet(args.client, args.tweet, '현재 환율 시스템에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
+                    sendReplyTweet(args.client, args.tweet, '현재 환율 시스템(fcc)에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
                 }
             } else {
-                sendReplyTweet(args.client, args.tweet, '현재 환율 시스템에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
+                sendReplyTweet(args.client, args.tweet, '현재 환율 시스템(fcc)에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
             }
         });
     } else if (args.currency.psuedo) {
@@ -183,10 +183,10 @@ function korbit(args) {
 
                 sendReplyTweet(args.client, args.tweet, message);
             } else {
-                sendReplyTweet(args.client, args.tweet, '현재 환율 시스템에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
+                sendReplyTweet(args.client, args.tweet, '현재 환율 시스템(korbit)에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
             }
         } else {
-            sendReplyTweet(args.client, args.tweet, '현재 환율 시스템에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
+            sendReplyTweet(args.client, args.tweet, '현재 환율 시스템(korbit)에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
         }
     });
 }
@@ -224,10 +224,60 @@ function fcc_material(args) {
 
                     sendReplyTweet(args.client, args.tweet, message);
                 } else {
-                    sendReplyTweet(args.client, args.tweet, '현재 환율 시스템에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
+                    sendReplyTweet(args.client, args.tweet, '현재 환율 시스템(fcc)에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
                 }
             } else {
-                sendReplyTweet(args.client, args.tweet, '현재 환율 시스템에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
+                sendReplyTweet(args.client, args.tweet, '현재 환율 시스템(fcc)에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
+            }
+        });
+    } else if (args.currency.psuedo) {
+        let message = config.output_message.krw;
+        console.log(args.currency.calculate.replace(/value/gi, args.value));
+
+        message = message.replace('$1', args.currency.prefix);
+        message = message.replace('$2', (args.value * 1).toLocaleString());
+        message = message.replace('$3', args.currency.screen);
+        message = message.replace('$4', (Math.round(eval(args.currency.calculate.replace(/value/gi, args.value)))).toLocaleString());
+
+        sendReplyTweet(args.client, args.tweet, message);
+    }
+}
+
+function manana(args) {
+    if (args.code !== 'KRW') {
+        request(`http://api.manana.kr/exchange/rate/KRW/${args.code}.json`, (error, response, body) => {
+            if (body) {
+                console.log(body);
+                const exchangeData = JSON.parse(body);
+
+                if (Object.keys(exchangeData).length >= 1) {
+                    const data = exchangeData[Object.keys(exchangeData)[0]];
+                    const rate = (data.rate) * 1;
+
+                    if (!args.currency.psuedo) {
+                        let message = config.output_message.real;
+                        message = message.replace('$1', args.currency.prefix);
+                        message = message.replace('$2', (args.value * 1).toLocaleString());
+                        message = message.replace('$3', args.currency.screen);
+                        message = message.replace('$4', (Math.round(args.value * rate)).toLocaleString());
+
+                        sendReplyTweet(args.client, args.tweet, message);
+                    } else {
+                        let message = config.output_message.psuedo;
+                        console.log(args.currency.calculate.replace(/value/gi, args.value));
+
+                        message = message.replace('$1', args.currency.prefix);
+                        message = message.replace('$2', (args.value * 1).toLocaleString());
+                        message = message.replace('$3', args.currency.screen);
+                        message = message.replace('$4', (Math.round(eval(args.currency.calculate.replace(/value/gi, args.value)) * rate)).toLocaleString());
+
+                        sendReplyTweet(args.client, args.tweet, message);
+                    }
+                } else {
+                    sendReplyTweet(args.client, args.tweet, '현재 환율 시스템(manana)에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
+                }
+            } else {
+                sendReplyTweet(args.client, args.tweet, '현재 환율 시스템(manana)에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
             }
         });
     } else if (args.currency.psuedo) {
@@ -268,6 +318,7 @@ exports.process = (client, tweet) => {
                 };
 
                 if (currency.endpoint === 'fcc') fcc(params);
+                else if (currency.endpoint === 'manana') manana(params);
                 else if (currency.endpoint === 'korbit') korbit(params);
                 else if (currency.endpoint === 'fcc_material') fcc_material(params);
 
