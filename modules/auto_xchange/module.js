@@ -129,7 +129,7 @@ function fcc(args) {
 
                     if (!args.currency.psuedo) {
                         let message = config.output_message.real;
-                        message = message.replace('$1', args.urrency.prefix);
+                        message = message.replace('$1', args.currency.prefix);
                         message = message.replace('$2', (args.value * 1).toLocaleString());
                         message = message.replace('$3', args.currency.screen);
                         message = message.replace('$4', (Math.round(args.value * rate)).toLocaleString());
