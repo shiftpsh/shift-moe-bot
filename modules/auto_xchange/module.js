@@ -9,7 +9,7 @@ const defaultConfig = {
     output_message: {
         real: '$1 $2$3 현재 $4원입니다.',
         psuedo: '$1 $2 $3 현재 $4원 정도입니다.',
-        material: '$1 $2 $3$4 현재 $5원입니ㅏㄷ.',
+        material: '$1 $2 $3$4 현재 $5원입니다.',
         krw: '$1 $2$3 $4원입니다.'
     },
 
