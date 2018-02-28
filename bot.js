@@ -85,9 +85,6 @@ function base64_encode(file) {
 }
 
 function updateHeader() {
-    const fileName = 'header_pane.png';
-    const font = 'NotoSansCJKkr-Medium.otf';
-
     request('http://free.currencyconverterapi.com/api/v3/convert?q=USD_KRW&compact=y', (usd_error, usd_response, usd_body) => {
         if (!usd_body) return;
         console.log(usd_body);
@@ -113,9 +110,9 @@ function updateHeader() {
                 if (Object.keys(btc_exchangeData).length < 1) return;
                 const btc_rate = parseInt(btc_exchangeData.last, 10);
 
-                gm(fileName)
+                gm(process.env.HEADER_TEMPLATE_FILE_NAME)
                     .fill('#FFFFFF')
-                    .font(font)
+                    .font(process.env.HEADER_TEMPLATE_FONT_NAME)
                     .fontSize(60)
                     .drawText(178, 249, usd_rate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }), 'southeast')
                     .fontSize(36)
