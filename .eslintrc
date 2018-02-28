@@ -1,0 +1,14 @@
+{
+  "extends": "eslint-config-airbnb-base",
+
+  "rules": {
+    "no-eval": "off",
+    "no-console": "off",
+    "no-plusplus": "off",
+    "camelcase": "off",
+    "indent": ["error", 4],
+    "comma-dangle": ["error", "never"],
+    "global-require": "off",
+    "import/no-dynamic-require": "off"
+  }
+}
