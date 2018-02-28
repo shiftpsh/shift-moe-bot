@@ -63,3 +63,6 @@ typings/
 
 # shiftbot copyrighted files
 shiftbot_copyrighted/
+
+# Generated files
+temp.png
