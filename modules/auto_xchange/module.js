@@ -46,6 +46,8 @@ const defaultConfig = {
     ]
 };
 
+const tr_ounce = 31.1034768;
+
 let config = defaultConfig;
 const configPath = './modules/auto_xchange/config.json';
 
@@ -192,7 +194,6 @@ function korbit(args) {
 }
 
 function fcc_material(args) {
-    const tr_ounce = 31.1034768;
     let units = 'g';
     let unit_multiplier = 1;
 
@@ -293,6 +294,58 @@ function manana(args) {
     }
 }
 
+function manana_material(args) {
+    let units = 'g';
+    let unit_multiplier = 1;
+
+    if (containsAny(args.text, ['mg', '밀리그람', '밀리그램'])) {
+        units = 'mg';
+        unit_multiplier = 0.0001;
+    }
+    if (containsAny(args.text, ['kg', '킬로', '킬로그람', '킬로그램'])) {
+        units = 'kg';
+        unit_multiplier = 1000;
+    }
+
+    if (args.code !== 'KRW') {
+        request(`http://api.manana.kr/exchange/rate/KRW/${args.code}.json`, (error, response, body) => {
+            if (body) {
+                console.log(body);
+                const exchangeData = JSON.parse(body);
+
+                if (Object.keys(exchangeData).length >= 1) {
+                    const data = exchangeData[Object.keys(exchangeData)[0]];
+                    const rate = (data.rate) * 1;
+
+                    let message = config.output_message.material;
+                    message = message.replace('$1', args.currency.prefix);
+                    message = message.replace('$2', args.currency.screen);
+                    message = message.replace('$3', (args.value * 1).toLocaleString());
+                    message = message.replace('$4', `${units}는`);
+                    message = message.replace('$5', (Math.round((args.value * rate * unit_multiplier) / tr_ounce)).toLocaleString());
+
+                    sendReplyTweet(args.client, args.tweet, message);
+                } else {
+                    sendReplyTweet(args.client, args.tweet, '현재 환율 시스템(manana)에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
+                }
+            } else {
+                sendReplyTweet(args.client, args.tweet, '현재 환율 시스템(manana)에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
+            }
+        });
+    } else if (args.currency.psuedo) {
+        let message = config.output_message.krw;
+        console.log(args.currency.calculate.replace(/value/gi, args.value));
+
+        message = message.replace('$1', args.currency.prefix);
+        message = message.replace('$2', (args.value * 1).toLocaleString());
+        message = message.replace('$3', args.currency.screen);
+        message = message.replace('$4', (Math.round(eval(args.currency.calculate.replace(/value/gi, args.value)))).toLocaleString());
+
+        sendReplyTweet(args.client, args.tweet, message);
+    }
+}
+
+
 exports.process = (client, tweet) => {
     const { text } = tweet;
 
@@ -318,9 +371,10 @@ exports.process = (client, tweet) => {
                 };
 
                 if (currency.endpoint === 'fcc') fcc(params);
-                else if (currency.endpoint === 'manana') manana(params);
-                else if (currency.endpoint === 'korbit') korbit(params);
                 else if (currency.endpoint === 'fcc_material') fcc_material(params);
+                else if (currency.endpoint === 'manana') manana(params);
+                else if (currency.endpoint === 'manana_material') manana_material(params);
+                else if (currency.endpoint === 'korbit') korbit(params);
 
                 break;
             }
