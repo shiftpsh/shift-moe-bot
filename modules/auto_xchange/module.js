@@ -206,7 +206,7 @@ function fcc_material(text, code, currency, value, client, tweet) {
     }
 
     if (code !== 'KRW') {
-        request(`http://currencyconverterapi.com/api/v3/convert?q=${code}_KRW&compact=y&apiKey=b8b6090a-151f-4c32-af2e-d78adcea72c1`, (error, response, body) => {
+        request(`http://free.currencyconverterapi.com/api/v3/convert?q=${code}_KRW&compact=y`, (error, response, body) => {
             if (body) {
                 console.log(body);
                 const exchangeData = JSON.parse(body);
