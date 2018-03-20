@@ -10,7 +10,8 @@ const defaultConfig = {
         real: '$1 $2$3 현재 $4원입니다.',
         psuedo: '$1 $2 $3 현재 $4원 정도입니다.',
         material: '$1 $2 $3$4 현재 $5원입니다.',
-        krw: '$1 $2$3 $4원입니다.'
+        krw: '$1 $2$3 $4원입니다.',
+        error: '현재 환율 시스템에 오류가 있는 것 같습니다. 개발자에게 문의해 주세요.'
     },
 
     default: [
@@ -146,13 +147,13 @@ function fcc(args) {
                         message = message.replace('$3', args.currency.screen);
                         message = message.replace('$4', (Math.round(eval(args.currency.calculate.replace(/value/gi, args.value)) * rate)).toLocaleString());
 
-                        sendReplyTweet(args.client, args.tweet, message);
+                        sendReplyTweet(args.client, args.tweet, config.output_message.message);
                     }
                 } else {
-                    sendReplyTweet(args.client, args.tweet, '현재 환율 시스템(fcc)에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
+                    sendReplyTweet(args.client, args.tweet, error);
                 }
             } else {
-                sendReplyTweet(args.client, args.tweet, '현재 환율 시스템(fcc)에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
+                sendReplyTweet(args.client, args.tweet, config.output_message.message);
             }
         });
     } else if (args.currency.psuedo) {
@@ -185,10 +186,10 @@ function korbit(args) {
 
                 sendReplyTweet(args.client, args.tweet, message);
             } else {
-                sendReplyTweet(args.client, args.tweet, '현재 환율 시스템(korbit)에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
+                sendReplyTweet(args.client, args.tweet, config.output_message.message);
             }
         } else {
-            sendReplyTweet(args.client, args.tweet, '현재 환율 시스템(korbit)에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
+            sendReplyTweet(args.client, args.tweet, config.output_message.message);
         }
     });
 }
@@ -225,10 +226,10 @@ function fcc_material(args) {
 
                     sendReplyTweet(args.client, args.tweet, message);
                 } else {
-                    sendReplyTweet(args.client, args.tweet, '현재 환율 시스템(fcc)에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
+                    sendReplyTweet(args.client, args.tweet, config.output_message.message);
                 }
             } else {
-                sendReplyTweet(args.client, args.tweet, '현재 환율 시스템(fcc)에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
+                sendReplyTweet(args.client, args.tweet, config.output_message.message);
             }
         });
     } else if (args.currency.psuedo) {
@@ -275,10 +276,10 @@ function manana(args) {
                         sendReplyTweet(args.client, args.tweet, message);
                     }
                 } else {
-                    sendReplyTweet(args.client, args.tweet, '현재 환율 시스템(manana)에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
+                    sendReplyTweet(args.client, args.tweet, config.output_message.message);
                 }
             } else {
-                sendReplyTweet(args.client, args.tweet, '현재 환율 시스템(manana)에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
+                sendReplyTweet(args.client, args.tweet, config.output_message.message);
             }
         });
     } else if (args.currency.psuedo) {
