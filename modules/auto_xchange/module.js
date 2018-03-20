@@ -147,13 +147,13 @@ function fcc(args) {
                         message = message.replace('$3', args.currency.screen);
                         message = message.replace('$4', (Math.round(eval(args.currency.calculate.replace(/value/gi, args.value)) * rate)).toLocaleString());
 
-                        sendReplyTweet(args.client, args.tweet, config.output_message.message);
+                        sendReplyTweet(args.client, args.tweet, message);
                     }
                 } else {
-                    sendReplyTweet(args.client, args.tweet, error);
+                    sendReplyTweet(args.client, args.tweet, config.output_message.error);
                 }
             } else {
-                sendReplyTweet(args.client, args.tweet, config.output_message.message);
+                sendReplyTweet(args.client, args.tweet, config.output_message.error);
             }
         });
     } else if (args.currency.psuedo) {
@@ -186,10 +186,10 @@ function korbit(args) {
 
                 sendReplyTweet(args.client, args.tweet, message);
             } else {
-                sendReplyTweet(args.client, args.tweet, config.output_message.message);
+                sendReplyTweet(args.client, args.tweet, config.output_message.error);
             }
         } else {
-            sendReplyTweet(args.client, args.tweet, config.output_message.message);
+            sendReplyTweet(args.client, args.tweet, config.output_message.error);
         }
     });
 }
@@ -226,10 +226,10 @@ function fcc_material(args) {
 
                     sendReplyTweet(args.client, args.tweet, message);
                 } else {
-                    sendReplyTweet(args.client, args.tweet, config.output_message.message);
+                    sendReplyTweet(args.client, args.tweet, config.output_message.error);
                 }
             } else {
-                sendReplyTweet(args.client, args.tweet, config.output_message.message);
+                sendReplyTweet(args.client, args.tweet, config.output_message.error);
             }
         });
     } else if (args.currency.psuedo) {
@@ -276,10 +276,10 @@ function manana(args) {
                         sendReplyTweet(args.client, args.tweet, message);
                     }
                 } else {
-                    sendReplyTweet(args.client, args.tweet, config.output_message.message);
+                    sendReplyTweet(args.client, args.tweet, config.output_message.error);
                 }
             } else {
-                sendReplyTweet(args.client, args.tweet, config.output_message.message);
+                sendReplyTweet(args.client, args.tweet, config.output_message.error);
             }
         });
     } else if (args.currency.psuedo) {
