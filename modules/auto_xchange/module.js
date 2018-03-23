@@ -355,6 +355,7 @@ exports.process = (client, tweet) => {
                 } else {
                     let message = config.output_message.duplicate;
                     message = message.replace('$1', criteriaKeys[i]);
+                    message = message.replace('$1', criteriaKeys[i]);
                     message += supportedCurrenciesMessage;
                     sendReplyTweet(client, tweet, message);
                 }
