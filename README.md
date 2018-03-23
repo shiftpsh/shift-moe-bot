@@ -50,7 +50,7 @@ HEADER_TEMPLATE_FONT_NAME= (헤더 템플릿에 사용될 폰트 이름)
 * `prefix`: 답글 트윗 앞에 붙일 문자열. 꼭 이모지가 아니어도 괜찮습니다만 이미지를 첨부하는 것보다야 이모지 하나가 더 나을 수도 있습니다.
 * `psuedo`: `true`면 환전을 한 이후에 미리 정해진 조건에 따라 계산을 합니다. `false`면 그냥 환전만 합니다. 보통 게임 내 가상 재화를 처리할 때 `true`로 설정합니다.
 * `material`: `true`면 물질으로 취급합니다. `false`면 통화로 취급합니다. `true`로 설정할 경우 g, kg 등의 단위를 인식하며, 출력되는 메시지가 조금 다릅니다
-* `endpoint`: 사용할 API. `fcc` 혹은 `korbit`입니다.
+* `endpoint`: 사용할 API. 후술할 `"endpoints"`에서 관리할 수 있습니다.
 
 ```json
 {
@@ -71,3 +71,19 @@ HEADER_TEMPLATE_FONT_NAME= (헤더 템플릿에 사용될 폰트 이름)
 * `calculate`: 가상 재화 계산 식. `value`가 가상 재화의 개수입니다. 사칙연산뿐만 아니라 함수도 쓸 수 있습니다. 복잡한 코드를 짜는 것도 가능합니다.
 
 위에서 아래로 내려가면서 `criteria`를 검사하므로, AUD와 USD를 판단하겠다면 "호주 달러"가 "달러" 위에 있어야만 합니다.
+
+### 지원 API 엔드포인트 수정
+
+`"endpoints"` 부분을 사용해 사용하고 싶은 환율 API 엔드포인트를 추가, 수정, 삭제할 수 있습니다. 단, `"default"`에서 선언된 화폐 코드들을 읽을 수 있는 API여야 히고, JSON을 반환해야 합니다. 예를 들어, `fcc` API는 미국 달러로 `usd`를 인식합니다.
+
+```json
+{
+    "code": "fcc",
+    "url": "http://free.currencyconverterapi.com/api/v3/convert?q=$from_$to&compact=y",
+    "value": "exchangeData[Object.keys(exchangeData)[0]].val"
+}
+```
+
+* `code`: API alias. 여기에서 선언된 alias는 `"default"`에서 쓸 수 있습니다.
+* `url`: API 엔드포인트. `$from` 부분이 출발할 화폐 코드, `$to` 부분이 도착할 화폐 코드가 들어가는 곳입니다.
+* `value`: 반환된 JSON에서 환율의 위치. 반환된 JSON의 변수명이 `exchangeData`라고 할 때 환율에 액세스할 수 있는 JS 코드를 작성합니다.
