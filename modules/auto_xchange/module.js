@@ -11,7 +11,8 @@ const defaultConfig = {
         psuedo: '$1 $2 $3 현재 $4원 정도입니다.',
         material: '$1 $2 $3$4 현재 $5원입니다.',
         krw: '$1 $2$3 $4원입니다.',
-        error: '현재 환율 시스템에 오류가 있는 것 같습니다. 개발자에게 문의해 주세요.'
+        error: '현재 환율 시스템에 오류가 있는 것 같습니다. 개발자에게 문의해 주세요.',
+        duplicate: '\'$1\'의 이름을 가진 화폐가 여러 가지인 것 같습니다. 조금 더 정확히 멘션해 주세요.\n\n지원되는 \'$1\' 목록:\n'
     },
 
     default: [{
@@ -43,6 +44,9 @@ const defaultConfig = {
         psuedo: true,
         material: false,
         original_code: 'JPY',
+        origin: '아이돌마스터 신데렐라 걸즈 스타라이트 스테이지',
+        origin_short: '데레스테',
+        origin_aliases: ['데레스테'],
         calculate: 'if (value < 360) { value / 0.5 * 1.1 } else if (value < 760) { value / 0.75 * 1.1 } else if (value < 1300) { value / 0.79 * 1.1 } else if (value < 2650) { value / 0.81 * 1.1 } else if (value < 4200) { value / 0.83 * 1.1 } else if (value < 8400) { value / 0.84 * 1.1 } else { value / 0.86 * 1.1 }',
         endpoint: 'fcc'
     },
@@ -65,10 +69,38 @@ const defaultConfig = {
     }]
 };
 
+const criterias = new Map();
+let criteriaKeys = [];
+
 const tr_ounce = 31.1034768;
 
 let config = defaultConfig;
 const configPath = './modules/auto_xchange/config.json';
+
+function initCriterion() {
+    for (let i = 0; i < config.default.length; i++) {
+        const currency = config.default[i];
+
+        for (let j = 0; j < currency.criteria.length; j++) {
+            const criteria = currency.criteria[j];
+
+            if (criterias.has(criteria)) {
+                const temp = criterias.get(criteria);
+                temp.push(currency);
+                criterias.set(criteria, temp);
+            } else {
+                criterias.set(criteria, [currency]);
+            }
+        }
+    }
+
+    criteriaKeys = Array.from(criterias.keys());
+    criteriaKeys.sort(function (a, b) {
+        return b.length - a.length || a.localeCompare(b);
+    });
+
+    console.log(criteriaKeys);
+}
 
 function getConfig() {
     fs.open(configPath, 'r', (err) => {
@@ -89,6 +121,7 @@ function getConfig() {
                 console.log('Got configurations for modules/auto_xchange.');
                 try {
                     config = JSON.parse(data);
+                    initCriterion();
                 } catch (parseErr) {
                     console.log(parseErr);
                 }
@@ -237,10 +270,14 @@ exports.process = (client, tweet) => {
     if (value <= 0) return;
 
     if (enabled) {
-        for (let i = 0; i < config.default.length; i++) {
-            const currency = config.default[i];
+        for (let i = 0; i < criteriaKeys.length; i++) {
+            const currencies = criterias.get(criteriaKeys[i]);
 
-            if (containsAny(text.toLowerCase(), currency.criteria) && !(text.includes('원**입니다'))) {
+            if (text.toLowerCase().indexOf(criteriaKeys[i]) === -1) continue;
+
+            if (currencies.length === 1) {
+                const currency = criterias.get(criteriaKeys[i])[0];
+
                 let {
                     code
                 } = currency;
@@ -259,9 +296,71 @@ exports.process = (client, tweet) => {
                 };
 
                 reply(params);
+            } else if (currencies.length > 1) {
+                let finalCurrency;
+                let supportedCurrenciesMessage = '';
+                let supportedCurrenciesCount = 0;
+                let originFoundFlag = false;
 
-                break;
+                for (let j = 0; j < currencies.length; j++) {
+                    const currency = currencies[j];
+
+                    if (supportedCurrenciesCount < 5) {
+                        if (currency.psuedo) {
+                            supportedCurrenciesMessage += `- ${currency.name} (${currency.origin})\n`;
+                            supportedCurrenciesCount++;
+                        } else {
+                            supportedCurrenciesMessage += `- ${currency.name} (실제 통화)\n`;
+                            supportedCurrenciesCount++;
+                        }
+                    } else if (supportedCurrenciesCount === 5) {
+                        supportedCurrenciesMessage += '등...';
+                        supportedCurrenciesCount++;
+                    }
+
+                    if (currency.psuedo) {
+                        if (text.toLowerCase().indexOf(currency.origin) !== -1 ||
+                            containsAny(text.toLowerCase(), currency.origin_aliases)) {
+                            finalCurrency = currency;
+                            originFoundFlag = true;
+                            break;
+                        }
+                    } else if (text.toLowerCase().indexOf(criteriaKeys[i]) !== -1) {
+                        finalCurrency = currency;
+                        originFoundFlag = true;
+                        break;
+                    }
+                }
+
+                if (originFoundFlag) {
+                    let {
+                        code
+                    } = finalCurrency;
+                    if (finalCurrency.psuedo) code = finalCurrency.original_code;
+                    const currency = finalCurrency;
+
+                    console.log(`[xchange] Parsed: @${tweet.user.screen_name}: ${text}`);
+                    console.log(`[xchange] Requesting conversion: ${value} ${finalCurrency.code}`);
+
+                    const params = {
+                        text,
+                        code,
+                        currency,
+                        value,
+                        client,
+                        tweet
+                    };
+
+                    reply(params);
+                } else {
+                    let message = config.output_message.duplicate;
+                    message = message.replace('$1', criteriaKeys[i]);
+                    message += supportedCurrenciesMessage;
+                    sendReplyTweet(client, tweet, message);
+                }
             }
+
+            break;
         }
     }
 };
