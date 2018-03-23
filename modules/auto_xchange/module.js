@@ -327,10 +327,10 @@ function manana_material(args) {
 
                     sendReplyTweet(args.client, args.tweet, message);
                 } else {
-                    sendReplyTweet(args.client, args.tweet, '현재 환율 시스템(manana)에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
+                    sendReplyTweet(args.client, args.tweet, config.output_message.error);
                 }
             } else {
-                sendReplyTweet(args.client, args.tweet, '현재 환율 시스템(manana)에 오류가 있는 것 같아요. @shiftpsh에게 문의해 주세요.');
+                sendReplyTweet(args.client, args.tweet, config.output_message.error);
             }
         });
     } else if (args.currency.psuedo) {
