@@ -2,7 +2,7 @@
 
 [사용 예 - @shift_moe](https://twitter.com/shift_moe)
 
-이 트위터 봇은 Node.js로 돌아갑니다. 멘션을 하면 한화로 바꿔 답해줍니다. Free Currency Converter(FCC)와 Korbit의 API를 사용합니다.
+이 트위터 봇은 Node.js로 돌아갑니다. 멘션을 하면 한화로 바꿔 답해줍니다. 기본적으로는 Free Currency Converter(FCC)의 API를 사용하고 있지만, 후술할 특정 형식을 갖춘 환율 API라면 무엇이든지 사용이 가능합니다.
 
 1시간마다 헤더 이미지도 현재 환율로 업데이트해 줍니다. ImageMagick이 설치되어 있어야 합니다.
 
