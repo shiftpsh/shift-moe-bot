@@ -38,6 +38,7 @@ HEADER_TEMPLATE_FONT_NAME= (헤더 템플릿에 사용될 폰트 이름)
     "screen": "달러는",
     "prefix": "💵",
     "psuedo": false,
+    "material": false,
     "endpoint": "fcc"
 }
 ```
@@ -48,6 +49,7 @@ HEADER_TEMPLATE_FONT_NAME= (헤더 템플릿에 사용될 폰트 이름)
 * `screen`: 답글 트윗에 보이게 될 문맥에 맞는 화폐 이름.
 * `prefix`: 답글 트윗 앞에 붙일 문자열. 꼭 이모지가 아니어도 괜찮습니다만 이미지를 첨부하는 것보다야 이모지 하나가 더 나을 수도 있습니다.
 * `psuedo`: `true`면 환전을 한 이후에 미리 정해진 조건에 따라 계산을 합니다. `false`면 그냥 환전만 합니다. 보통 게임 내 가상 재화를 처리할 때 `true`로 설정합니다.
+* `material`: `true`면 물질으로 취급합니다. `false`면 통화로 취급합니다. `true`로 설정할 경우 g, kg 등의 단위를 인식하며, 출력되는 메시지가 조금 다릅니다
 * `endpoint`: 사용할 API. `fcc` 혹은 `korbit`입니다.
 
 ```json
@@ -58,6 +60,7 @@ HEADER_TEMPLATE_FONT_NAME= (헤더 템플릿에 사용될 폰트 이름)
     "screen": "데레스테 스타 쥬얼은",
     "prefix": "🌟",
     "psuedo": true,
+    "material": false,
     "original_code": "JPY",
     "calculate": "if (value < 360) { value / 0.5 * 1.1 } else if (value < 760) { value / 0.75 * 1.1 } else if (value < 1300) { value / 0.79 * 1.1 } else if (value < 2650) { value / 0.81 * 1.1 } else if (value < 4200) { value / 0.83 * 1.1 } else if (value < 8400) { value / 0.84 * 1.1 } else { value / 0.86 * 1.1 }",
     "endpoint": "fcc"
