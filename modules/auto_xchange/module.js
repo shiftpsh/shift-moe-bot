@@ -14,37 +14,55 @@ const defaultConfig = {
         error: '현재 환율 시스템에 오류가 있는 것 같습니다. 개발자에게 문의해 주세요.'
     },
 
-    default: [
-        {
-            code: 'USD',
-            criteria: ['usd', 'dollar', '달러', '딸라', '$', '사달라', '사딸라'],
-            name: '달러',
-            screen: '달러는',
-            prefix: '💵',
-            psuedo: false,
-            endpoint: 'fcc'
-        },
-        {
-            code: 'JPY',
-            criteria: ['jpy', 'yen', '엔', '¥', '円'],
-            name: '엔',
-            screen: '엔은',
-            prefix: '💴',
-            psuedo: false,
-            endpoint: 'fcc'
-        },
-        {
-            code: 'STAR_JEWEL',
-            criteria: ['쥬얼', '주얼', 'ジュエル'],
-            name: '스타 쥬얼',
-            screen: '데레스테 스타 쥬얼은',
-            prefix: '🌟',
-            psuedo: true,
-            original_code: 'JPY',
-            calculate: 'if (value < 360) { value / 0.5 * 1.1 } else if (value < 760) { value / 0.75 * 1.1 } else if (value < 1300) { value / 0.79 * 1.1 } else if (value < 2650) { value / 0.81 * 1.1 } else if (value < 4200) { value / 0.83 * 1.1 } else if (value < 8400) { value / 0.84 * 1.1 } else { value / 0.86 * 1.1 }',
-            endpoint: 'fcc'
-        }
-    ]
+    default: [{
+        code: 'USD',
+        criteria: ['usd', 'dollar', '달러', '딸라', '$', '사달라', '사딸라'],
+        name: '달러',
+        screen: '달러는',
+        prefix: '💵',
+        psuedo: false,
+        material: false,
+        endpoint: 'fcc'
+    },
+    {
+        code: 'JPY',
+        criteria: ['jpy', 'yen', '엔', '¥', '円'],
+        name: '엔',
+        screen: '엔은',
+        prefix: '💴',
+        psuedo: false,
+        material: false,
+        endpoint: 'fcc'
+    },
+    {
+        code: 'STAR_JEWEL',
+        criteria: ['쥬얼', '주얼', 'ジュエル'],
+        name: '스타 쥬얼',
+        screen: '데레스테 스타 쥬얼은',
+        prefix: '🌟',
+        psuedo: true,
+        material: false,
+        original_code: 'JPY',
+        calculate: 'if (value < 360) { value / 0.5 * 1.1 } else if (value < 760) { value / 0.75 * 1.1 } else if (value < 1300) { value / 0.79 * 1.1 } else if (value < 2650) { value / 0.81 * 1.1 } else if (value < 4200) { value / 0.83 * 1.1 } else if (value < 8400) { value / 0.84 * 1.1 } else { value / 0.86 * 1.1 }',
+        endpoint: 'fcc'
+    },
+    {
+        code: 'XAU',
+        criteria: ['금'],
+        name: '금',
+        screen: '금',
+        prefix: '🥇',
+        psuedo: false,
+        material: true,
+        endpoint: 'fcc'
+    }
+    ],
+
+    endpoints: [{
+        code: 'fcc',
+        url: 'http://free.currencyconverterapi.com/api/v3/convert?q=$from_$to&compact=y',
+        value: 'exchangeData[Object.keys(exchangeData)[0]].val'
+    }]
 };
 
 const tr_ounce = 31.1034768;
@@ -119,152 +137,56 @@ function sendReplyTweet(client, original_tweet, text) {
     }
 }
 
-function fcc(args) {
-    if (args.code !== 'KRW') {
-        request(`http://free.currencyconverterapi.com/api/v3/convert?q=${args.code}_KRW&compact=y`, (error, response, body) => {
-            if (body) {
-                console.log(body);
-                const exchangeData = JSON.parse(body);
-
-                if (Object.keys(exchangeData).length >= 1) {
-                    const data = exchangeData[Object.keys(exchangeData)[0]];
-                    const rate = data.val;
-
-                    if (!args.currency.psuedo) {
-                        let message = config.output_message.real;
-                        message = message.replace('$1', args.currency.prefix);
-                        message = message.replace('$2', (args.value * 1).toLocaleString());
-                        message = message.replace('$3', args.currency.screen);
-                        message = message.replace('$4', (Math.round(args.value * rate)).toLocaleString());
-
-                        sendReplyTweet(args.client, args.tweet, message);
-                    } else {
-                        let message = config.output_message.psuedo;
-                        console.log(args.currency.calculate.replace(/value/gi, args.value));
-
-                        message = message.replace('$1', args.currency.prefix);
-                        message = message.replace('$2', (args.value * 1).toLocaleString());
-                        message = message.replace('$3', args.currency.screen);
-                        message = message.replace('$4', (Math.round(eval(args.currency.calculate.replace(/value/gi, args.value)) * rate)).toLocaleString());
-
-                        sendReplyTweet(args.client, args.tweet, message);
-                    }
-                } else {
-                    sendReplyTweet(args.client, args.tweet, config.output_message.error);
-                }
-            } else {
-                sendReplyTweet(args.client, args.tweet, config.output_message.error);
-            }
-        });
-    } else if (args.currency.psuedo) {
-        let message = config.output_message.krw;
-        console.log(args.currency.calculate.replace(/value/gi, args.value));
-
-        message = message.replace('$1', args.currency.prefix);
-        message = message.replace('$2', (args.value * 1).toLocaleString());
-        message = message.replace('$3', args.currency.screen);
-        message = message.replace('$4', (Math.round(eval(args.currency.calculate.replace(/value/gi, args.value)))).toLocaleString());
-
-        sendReplyTweet(args.client, args.tweet, message);
-    }
-}
-
-function korbit(args) {
-    request(`https://api.korbit.co.kr/v1/ticker?currency_pair=${args.code.toLowerCase()}_krw`, (error, response, body) => {
-        if (body) {
-            console.log(body);
-            const exchangeData = JSON.parse(body);
-
-            if (Object.keys(exchangeData).length >= 1) {
-                const rate = exchangeData.last;
-
-                let message = config.output_message.real;
-                message = message.replace('$1', args.currency.prefix);
-                message = message.replace('$2', (args.value * 1).toLocaleString(undefined, { maximumFractionDigits: 16 }));
-                message = message.replace('$3', args.currency.screen);
-                message = message.replace('$4', (Math.round(args.value * rate)).toLocaleString());
-
-                sendReplyTweet(args.client, args.tweet, message);
-            } else {
-                sendReplyTweet(args.client, args.tweet, config.output_message.error);
-            }
-        } else {
-            sendReplyTweet(args.client, args.tweet, config.output_message.error);
+function reply(args) {
+    let endpoint;
+    for (let i = 0; i !== config.endpoints.length; i++) {
+        if (config.endpoints[i].code === args.currency.endpoint) {
+            endpoint = config.endpoints[i];
+            break;
         }
-    });
-}
-
-function fcc_material(args) {
-    let units = 'g';
-    let unit_multiplier = 1;
-
-    if (containsAny(args.text, ['mg', '밀리그람', '밀리그램'])) {
-        units = 'mg';
-        unit_multiplier = 0.0001;
-    }
-    if (containsAny(args.text, ['kg', '킬로', '킬로그람', '킬로그램'])) {
-        units = 'kg';
-        unit_multiplier = 1000;
     }
 
     if (args.code !== 'KRW') {
-        request(`http://free.currencyconverterapi.com/api/v3/convert?q=${args.code}_KRW&compact=y`, (error, response, body) => {
+        if (endpoint === undefined) return;
+
+        let url = endpoint.url.replace('$to', 'KRW'.toLowerCase());
+
+        if (!args.currency.psuedo) {
+            url = url.replace('$from', args.currency.code.toLowerCase());
+        } else {
+            url = url.replace('$from', args.currency.original_code.toLowerCase());
+        }
+
+        request(url, (error, response, body) => {
             if (body) {
                 console.log(body);
                 const exchangeData = JSON.parse(body);
 
                 if (Object.keys(exchangeData).length >= 1) {
-                    const data = exchangeData[Object.keys(exchangeData)[0]];
-                    const rate = data.val;
+                    const rate = eval(endpoint.value);
 
-                    let message = config.output_message.material;
-                    message = message.replace('$1', args.currency.prefix);
-                    message = message.replace('$2', args.currency.screen);
-                    message = message.replace('$3', (args.value * 1).toLocaleString());
-                    message = message.replace('$4', `${units}는`);
-                    message = message.replace('$5', (Math.round((args.value * rate * unit_multiplier) / tr_ounce)).toLocaleString());
+                    if (args.currency.material) {
+                        let units = 'g';
+                        let unit_multiplier = 1;
 
-                    sendReplyTweet(args.client, args.tweet, message);
-                } else {
-                    sendReplyTweet(args.client, args.tweet, config.output_message.error);
-                }
-            } else {
-                sendReplyTweet(args.client, args.tweet, config.output_message.error);
-            }
-        });
-    } else if (args.currency.psuedo) {
-        let message = config.output_message.krw;
-        console.log(args.currency.calculate.replace(/value/gi, args.value));
+                        if (containsAny(args.text, ['mg', '밀리그람', '밀리그램'])) {
+                            units = 'mg';
+                            unit_multiplier = 0.0001;
+                        }
+                        if (containsAny(args.text, ['kg', '킬로', '킬로그람', '킬로그램'])) {
+                            units = 'kg';
+                            unit_multiplier = 1000;
+                        }
 
-        message = message.replace('$1', args.currency.prefix);
-        message = message.replace('$2', (args.value * 1).toLocaleString());
-        message = message.replace('$3', args.currency.screen);
-        message = message.replace('$4', (Math.round(eval(args.currency.calculate.replace(/value/gi, args.value)))).toLocaleString());
-
-        sendReplyTweet(args.client, args.tweet, message);
-    }
-}
-
-function manana(args) {
-    if (args.code !== 'KRW') {
-        request(`http://api.manana.kr/exchange/rate/KRW/${args.code}.json`, (error, response, body) => {
-            if (body) {
-                console.log(body);
-                const exchangeData = JSON.parse(body);
-
-                if (Object.keys(exchangeData).length >= 1) {
-                    const data = exchangeData[Object.keys(exchangeData)[0]];
-                    const rate = (data.rate) * 1;
-
-                    if (!args.currency.psuedo) {
-                        let message = config.output_message.real;
+                        let message = config.output_message.material;
                         message = message.replace('$1', args.currency.prefix);
-                        message = message.replace('$2', (args.value * 1).toLocaleString());
-                        message = message.replace('$3', args.currency.screen);
-                        message = message.replace('$4', (Math.round(args.value * rate)).toLocaleString());
+                        message = message.replace('$2', args.currency.screen);
+                        message = message.replace('$3', (args.value * 1).toLocaleString());
+                        message = message.replace('$4', `${units}는`);
+                        message = message.replace('$5', (Math.round((args.value * rate * unit_multiplier) / tr_ounce)).toLocaleString());
 
                         sendReplyTweet(args.client, args.tweet, message);
-                    } else {
+                    } else if (args.currency.psuedo) {
                         let message = config.output_message.psuedo;
                         console.log(args.currency.calculate.replace(/value/gi, args.value));
 
@@ -272,6 +194,14 @@ function manana(args) {
                         message = message.replace('$2', (args.value * 1).toLocaleString());
                         message = message.replace('$3', args.currency.screen);
                         message = message.replace('$4', (Math.round(eval(args.currency.calculate.replace(/value/gi, args.value)) * rate)).toLocaleString());
+
+                        sendReplyTweet(args.client, args.tweet, message);
+                    } else {
+                        let message = config.output_message.real;
+                        message = message.replace('$1', args.currency.prefix);
+                        message = message.replace('$2', (args.value * 1).toLocaleString());
+                        message = message.replace('$3', args.currency.screen);
+                        message = message.replace('$4', (Math.round(args.value * rate)).toLocaleString());
 
                         sendReplyTweet(args.client, args.tweet, message);
                     }
@@ -294,61 +224,11 @@ function manana(args) {
         sendReplyTweet(args.client, args.tweet, message);
     }
 }
-
-function manana_material(args) {
-    let units = 'g';
-    let unit_multiplier = 1;
-
-    if (containsAny(args.text, ['mg', '밀리그람', '밀리그램'])) {
-        units = 'mg';
-        unit_multiplier = 0.0001;
-    }
-    if (containsAny(args.text, ['kg', '킬로', '킬로그람', '킬로그램'])) {
-        units = 'kg';
-        unit_multiplier = 1000;
-    }
-
-    if (args.code !== 'KRW') {
-        request(`http://api.manana.kr/exchange/rate/KRW/${args.code}.json`, (error, response, body) => {
-            if (body) {
-                console.log(body);
-                const exchangeData = JSON.parse(body);
-
-                if (Object.keys(exchangeData).length >= 1) {
-                    const data = exchangeData[Object.keys(exchangeData)[0]];
-                    const rate = (data.rate) * 1;
-
-                    let message = config.output_message.material;
-                    message = message.replace('$1', args.currency.prefix);
-                    message = message.replace('$2', args.currency.screen);
-                    message = message.replace('$3', (args.value * 1).toLocaleString());
-                    message = message.replace('$4', `${units}는`);
-                    message = message.replace('$5', (Math.round((args.value * rate * unit_multiplier) / tr_ounce)).toLocaleString());
-
-                    sendReplyTweet(args.client, args.tweet, message);
-                } else {
-                    sendReplyTweet(args.client, args.tweet, config.output_message.error);
-                }
-            } else {
-                sendReplyTweet(args.client, args.tweet, config.output_message.error);
-            }
-        });
-    } else if (args.currency.psuedo) {
-        let message = config.output_message.krw;
-        console.log(args.currency.calculate.replace(/value/gi, args.value));
-
-        message = message.replace('$1', args.currency.prefix);
-        message = message.replace('$2', (args.value * 1).toLocaleString());
-        message = message.replace('$3', args.currency.screen);
-        message = message.replace('$4', (Math.round(eval(args.currency.calculate.replace(/value/gi, args.value)))).toLocaleString());
-
-        sendReplyTweet(args.client, args.tweet, message);
-    }
-}
-
 
 exports.process = (client, tweet) => {
-    const { text } = tweet;
+    const {
+        text
+    } = tweet;
 
     const enabled = true;
 
@@ -361,21 +241,24 @@ exports.process = (client, tweet) => {
             const currency = config.default[i];
 
             if (containsAny(text.toLowerCase(), currency.criteria) && !(text.includes('원**입니다'))) {
-                let { code } = currency;
+                let {
+                    code
+                } = currency;
                 if (currency.psuedo) code = currency.original_code;
 
                 console.log(`[xchange] Parsed: @${tweet.user.screen_name}: ${text}`);
                 console.log(`[xchange] Requesting conversion: ${value} ${currency.code}`);
 
                 const params = {
-                    text, code, currency, value, client, tweet
+                    text,
+                    code,
+                    currency,
+                    value,
+                    client,
+                    tweet
                 };
 
-                if (currency.endpoint === 'fcc') fcc(params);
-                else if (currency.endpoint === 'fcc_material') fcc_material(params);
-                else if (currency.endpoint === 'manana') manana(params);
-                else if (currency.endpoint === 'manana_material') manana_material(params);
-                else if (currency.endpoint === 'korbit') korbit(params);
+                reply(params);
 
                 break;
             }
