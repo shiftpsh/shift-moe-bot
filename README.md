@@ -62,12 +62,18 @@ HEADER_TEMPLATE_FONT_NAME= (헤더 템플릿에 사용될 폰트 이름)
     "psuedo": true,
     "material": false,
     "original_code": "JPY",
+    "origin": "아이돌마스터 신데렐라 걸즈 스타라이트 스테이지",
+    "origin_short": "데레스테",
+    "origin_aliases": ["데레스테"],
     "calculate": "if (value < 360) { value / 0.5 * 1.1 } else if (value < 760) { value / 0.75 * 1.1 } else if (value < 1300) { value / 0.79 * 1.1 } else if (value < 2650) { value / 0.81 * 1.1 } else if (value < 4200) { value / 0.83 * 1.1 } else if (value < 8400) { value / 0.84 * 1.1 } else { value / 0.86 * 1.1 }",
     "endpoint": "fcc"
 }
 ```
 
 * `original_code`: 게임 내 가상 재화 등의 기반 화폐 코드.
+* `origin`: 출처가 되는 게임의 정식 명칭.
+* `origin_short`: 출처가 되는 게임의 대표 약칭.
+* `origin_aliases`: 출처가 되는 게임의 약칭들.
 * `calculate`: 가상 재화 계산 식. `value`가 가상 재화의 개수입니다. 사칙연산뿐만 아니라 함수도 쓸 수 있습니다. 복잡한 코드를 짜는 것도 가능합니다.
 
 `criteria`의 검사 순서는 긴 조건부터 짧은 조건으로입니다. config 내에서의 순서는 중요하지 않습니다.
