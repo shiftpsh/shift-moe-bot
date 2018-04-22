@@ -95,9 +95,7 @@ function initCriterion() {
     }
 
     criteriaKeys = Array.from(criterias.keys());
-    criteriaKeys.sort(function (a, b) {
-        return b.length - a.length || a.localeCompare(b);
-    });
+    criteriaKeys.sort((a, b) => b.length - a.length || a.localeCompare(b));
 
     console.log(criteriaKeys);
 }
